@@ -31,10 +31,9 @@ from dashboard.components.metrics_cards import (
     render_hardware_status_banner,
     render_top_kpi_row,
 )
-from dashboard.components.placeholder_views import (
-    render_climate_impact_placeholder,
-    render_fault_analysis_placeholder,
-)
+from dashboard.components.fault_analysis_view import render_fault_analysis_view
+from dashboard.components.climate_impact_view import render_climate_impact_view
+from dashboard.utils.ml_inference import models_available, run_inference
 from dashboard.components.sidebar import render_sidebar
 from dashboard.utils.sample_data import (
     generate_recent_telemetry_events,
@@ -51,13 +50,24 @@ def main():
     # Render navigation and sidebar controls
     selected_nav, scenario, esp32_online, unit_id = render_sidebar()
 
+    # Acquire current state data (needed for all views)
+    state = get_current_system_state(scenario_name=scenario, esp32_online=esp32_online)
+
+    # Run ML inference (returns demo fallback if models not trained)
+    ml_result = None
+    if models_available():
+        try:
+            ml_result = run_inference(state)
+        except Exception:
+            ml_result = None
+
     # Route based on selected sidebar navigation
     if selected_nav == "Fault Analysis":
-        render_fault_analysis_placeholder()
+        render_fault_analysis_view(state, ml_result)
         return
 
     if selected_nav == "Energy & Climate Impact":
-        render_climate_impact_placeholder()
+        render_climate_impact_view(state, ml_result)
         return
 
     # --- PRIMARY DASHBOARD VIEW ---
@@ -86,9 +96,6 @@ def main():
             <div style="font-size: 0.72rem; color: #10B981; margin-top: 0.2rem;">● Auto-sync: 1 Hz active</div>
         </div>
         """, unsafe_allow_html=True)
-
-    # Acquire current state data
-    state = get_current_system_state(scenario_name=scenario, esp32_online=esp32_online)
 
     # 1. Top KPI Row: AC Health Score, Operating Status, Anomaly Detection, Power Overview
     render_top_kpi_row(state)
@@ -157,9 +164,6 @@ def main():
         <h3 style="font-size: 1.05rem; font-weight: 700; color: #F8FAFC; margin: 0;">
             Live Telemetry & Anomaly Event Log
         </h3>
-        <p style="font-size: 0.76rem; color: #94A3B8; margin: 0;">
-            Real-time feed from ESP32 node and Isolation Forest anomaly surveillance
-        </p>
     </div>
     """, unsafe_allow_html=True)
 
