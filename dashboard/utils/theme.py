@@ -161,35 +161,24 @@ def apply_custom_theme(theme_mode: str = None):
     /* Global Body & Container */
     html, body, [class*="css"] {{
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-        overflow-x: hidden;
     }}
 
     .stApp {{
         background-color: var(--bg-main) !important;
         color: var(--text-primary) !important;
-        overflow-x: hidden !important;
     }}
 
-    .stMain, .stApp > div {{
-        overflow: visible !important;
+    code, pre {{
+        font-family: 'JetBrains Mono', monospace !important;
     }}
 
     /* App container padding */
     .block-container {{
-        padding-top: 0.5rem !important;
+        padding-top: 1.5rem !important;
         padding-bottom: 3rem !important;
         padding-left: 2rem !important;
         padding-right: 2rem !important;
         max-width: 1380px !important;
-    }}
-
-    /* Homepage navigation alignment guard */
-    [data-testid="stHorizontalBlock"] > [data-testid="stVerticalBlock"] {{
-        align-items: center !important;
-    }}
-
-    [data-testid="stHorizontalBlock"] > [data-testid="stVerticalBlock"] > div:first-child {{
-        margin-top: 0 !important;
     }}
 
     /* Streamlit Metric Overrides */
@@ -387,35 +376,17 @@ def apply_custom_theme(theme_mode: str = None):
     .header-subtitle {{
         color: var(--text-secondary);
         font-size: 0.88rem;
-        margin-top: 0.15rem;
-        margin-bottom: 1rem;
+        margin-top: -0.45rem;
+        margin-bottom: 1.5rem;
     }}
 
-    .nav-bar-container {{
-        background: {nav_bg};
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid var(--border-subtle);
-        border-radius: 14px;
-        padding: 0.7rem 1.1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1rem;
-        min-height: 70px;
-        margin: 0 0 1.25rem 0;
-        box-shadow: var(--card-shadow);
-        position: relative;
-        z-index: 1;
-        overflow: visible;
+    /* Streamlit radio pills style in sidebar */
+    div[data-testid="stRadio"] > label {{
+        display: none;
     }}
 
-    @media (max-width: 980px) {{
-        .nav-bar-container {{
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 0.85rem 1rem;
-        }}
+    div[data-testid="stRadio"] > div {{
+        gap: 0.4rem;
     }}
 
     /* Clean divider */
@@ -423,7 +394,7 @@ def apply_custom_theme(theme_mode: str = None):
         border: none;
         height: 1px;
         background: var(--border-subtle);
-        margin: 0.35rem 0 1.25rem 0;
+        margin: 1.25rem 0;
     }}
 
     /* Homepage Special Components */
@@ -442,104 +413,84 @@ def apply_custom_theme(theme_mode: str = None):
         -webkit-backdrop-filter: blur(12px);
         border: 1px solid var(--border-subtle);
         border-radius: 14px;
-        padding: 0.7rem 1.1rem;
+        padding: 0.85rem 1.4rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 1rem;
-        min-height: 70px;
-        margin: 0 0 1.25rem 0;
+        margin-bottom: 1.75rem;
         box-shadow: var(--card-shadow);
-        position: relative;
-        z-index: 1;
-        overflow: visible;
     }}
 
-    @media (max-width: 980px) {{
-        .nav-bar-container {{
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 0.85rem 1rem;
-        }}
-    }}
-
-    /* ...existing code... */
-    .header-subtitle {{
-        color: var(--text-secondary);
-        font-size: 0.88rem;
-        margin-top: 0.15rem;
-        margin-bottom: 1rem;
-    }}
-
-    .nav-bar-container {{
-        background: {nav_bg};
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+    .feature-card {{
+        background: var(--bg-card);
         border: 1px solid var(--border-subtle);
         border-radius: 14px;
-        padding: 0.7rem 1.1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1rem;
-        min-height: 70px;
-        margin: 0 0 1.25rem 0;
+        padding: 1.5rem;
+        height: 100%;
         box-shadow: var(--card-shadow);
-        position: relative;
-        z-index: 1;
-        overflow: visible;
+        transition: transform 0.2s ease, border-color 0.2s ease;
     }}
 
-    @media (max-width: 980px) {{
-        .nav-bar-container {{
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 0.85rem 1rem;
-        }}
+    .feature-card:hover {{
+        border-color: var(--border-accent);
+        transform: translateY(-2px);
     }}
 
-    /* Clean divider */
-    hr {{
-        border: none;
-        height: 1px;
-        background: var(--border-subtle);
-        margin: 0.35rem 0 1.25rem 0;
-    }}
-
-    /* Homepage Special Components */
-    .hero-glow-bg {{
-        background: {hero_glow};
-        border-radius: 20px;
-        padding: 3rem 2rem 2rem 2rem;
-        border: 1px solid var(--border-subtle);
-        margin-bottom: 2rem;
-        position: relative;
-    }}
-
-    .nav-bar-container {{
-        background: {nav_bg};
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid var(--border-subtle);
-        border-radius: 14px;
-        padding: 0.7rem 1.1rem;
+    .step-number {{
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--accent-blue);
+        font-weight: 800;
+        font-size: 0.95rem;
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        gap: 1rem;
-        min-height: 70px;
-        margin: 0 0 1.25rem 0;
-        box-shadow: var(--card-shadow);
-        position: relative;
-        z-index: 1;
-        overflow: visible;
+        justify-content: center;
+        font-family: 'JetBrains Mono', monospace;
+        margin-bottom: 0.75rem;
+        border: 1px solid var(--border-accent);
     }}
 
-    @media (max-width: 980px) {{
-        .nav-bar-container {{
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 0.85rem 1rem;
-        }}
+    /* Buttons override for modern SaaS look */
+    .stButton > button {{
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.02em !important;
+        transition: all 0.2s ease !important;
     }}
+
+    .stButton > button:hover {{
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px var(--accent-blue-glow) !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+
+def get_health_color_and_badge(health_score: int) -> Tuple[str, str, str]:
     """
+    Returns (color_hex, condition_label, badge_class) based on DESIGN.md:
+    80–100: Healthy
+    60–79: Moderate
+    40–59: Needs inspection
+    0–39: Poor condition
+    """
+    if health_score >= 80:
+        return "#10B981", "Healthy", "badge-success"
+    elif health_score >= 60:
+        return "#F59E0B", "Moderate", "badge-warning"
+    elif health_score >= 40:
+        return "#FB923C", "Needs Inspection", "badge-warning"
+    else:
+        return "#EF4444", "Poor Condition", "badge-danger"
+
+
+def get_anomaly_badge(anomaly_status: str) -> Tuple[str, str]:
+    """Returns (badge_class, badge_label)."""
+    if "Normal" in anomaly_status:
+        return "badge-success", "Normal Operation"
+    elif "Warning" in anomaly_status:
+        return "badge-warning", "Anomaly Detected"
+    else:
+        return "badge-danger", "Critical Anomaly"

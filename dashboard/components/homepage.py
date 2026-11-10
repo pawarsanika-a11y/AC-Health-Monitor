@@ -63,26 +63,26 @@ def _render_navbar(theme_mode: str):
     theme_btn_label = "☀️ Light" if is_dark else "🌙 Dark"
     next_theme = "light" if is_dark else "dark"
 
-    nav_brand, nav_links, nav_actions = st.columns([2.2, 2.5, 1.9])
+    col_nav_brand, col_nav_links, col_nav_actions = st.columns([2.0, 2.2, 1.8])
 
-    with nav_brand:
+    with col_nav_brand:
         st.markdown("""
-        <div style="display: flex; align-items: center; gap: 0.65rem; min-height: 38px;">
-            <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+        <div style="display: flex; align-items: center; gap: 0.65rem; padding-top: 0.35rem;">
+            <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
                 ❄️
             </div>
-            <div style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; min-width: 0;">
-                <span style="font-size: 1.05rem; font-weight: 800; letter-spacing: 0.03em; color: var(--text-primary);">AI-AC MONITOR</span>
-                <span class="badge badge-success" style="font-size: 0.62rem; padding: 0.15rem 0.45rem;">
+            <div>
+                <span style="font-size: 1.05rem; font-weight: 800; letter-spacing: 0.03em;">AI-AC MONITOR</span>
+                <span class="badge badge-success" style="font-size: 0.62rem; padding: 0.15rem 0.45rem; margin-left: 0.4rem;">
                     <span class="badge-dot pulse"></span>IoT Active
                 </span>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-    with nav_links:
+    with col_nav_links:
         st.markdown(f"""
-        <div style="display: flex; align-items: center; justify-content: center; gap: 1.1rem; min-height: 38px; font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 1.25rem; font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); padding-top: 0.55rem;">
             <a href="#how-it-works" style="color: inherit; text-decoration: none;">How It Works</a>
             <a href="#features" style="color: inherit; text-decoration: none;">Features</a>
             <a href="#simulator" style="color: inherit; text-decoration: none;">Live Demo</a>
@@ -90,19 +90,19 @@ def _render_navbar(theme_mode: str):
         </div>
         """, unsafe_allow_html=True)
 
-    with nav_actions:
-        action_col1, action_col2 = st.columns([1.05, 1.45])
-        with action_col1:
+    with col_nav_actions:
+        btn_col1, btn_col2 = st.columns([1, 1.4])
+        with btn_col1:
             if st.button(theme_btn_label, key="nav_theme_toggle", use_container_width=True):
                 set_theme(next_theme)
                 st.rerun()
-        with action_col2:
+        with btn_col2:
             if st.button("🚀 Get Started", key="nav_get_started", type="primary", use_container_width=True):
                 st.session_state["logged_in"] = True
                 st.session_state["current_page"] = "dashboard"
                 st.rerun()
 
-    st.markdown("<hr style='margin: 0.3rem 0 1.25rem 0;'/>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin: 0.65rem 0 1.5rem 0;'/>", unsafe_allow_html=True)
 
 
 def _render_hero_section(is_dark: bool):
