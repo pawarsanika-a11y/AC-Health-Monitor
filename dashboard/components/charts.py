@@ -12,36 +12,20 @@ from plotly.subplots import make_subplots
 import streamlit as st
 
 
-DARK_PLOT_LAYOUT = dict(
-    paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="rgba(15, 23, 42, 0.5)",
-    font=dict(family="Plus Jakarta Sans, sans-serif", color="#94A3B8", size=11),
-    margin=dict(l=40, r=20, t=35, b=40),
-    legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=1.02,
-        xanchor="right",
-        x=1,
-        font=dict(size=11, color="#CBD5E1"),
-        bgcolor="rgba(15, 23, 42, 0.7)",
-        bordercolor="rgba(255, 255, 255, 0.06)",
-        borderwidth=1
-    ),
-    hovermode="x unified",
-    hoverlabel=dict(
-        bgcolor="#1E293B",
-        font_size=11,
-        font_family="JetBrains Mono, monospace",
-        bordercolor="#3B82F6"
-    )
-)
+from dashboard.utils.theme import get_plot_layout, get_current_theme, get_axis_colors
+
+DARK_PLOT_LAYOUT = get_plot_layout("dark")
 
 
-def render_temperature_chart(df: pd.DataFrame, time_range_label: str):
+def render_temperature_chart(df: pd.DataFrame, time_range_label: str, theme_mode: str = None):
     """
     Renders the primary multi-channel temperature monitoring line chart.
     """
+    if theme_mode is None:
+        theme_mode = get_current_theme()
+    plot_layout = get_plot_layout(theme_mode)
+    axis_colors = get_axis_colors(theme_mode)
+
     fig = go.Figure()
 
     # Outdoor Ambient Temp
@@ -98,44 +82,53 @@ def render_temperature_chart(df: pd.DataFrame, time_range_label: str):
 
     # Axes styling
     fig.update_layout(
-        **DARK_PLOT_LAYOUT,
+        **plot_layout,
         height=380,
+        margin=dict(l=40, r=20, t=35, b=40),
         title=dict(
             text=f"<b>Multi-Point Temperature Dynamics</b> ({time_range_label})",
-            font=dict(size=14, color="#F8FAFC"),
+            font=dict(size=14, color=axis_colors["title_color"]),
             x=0.01,
             y=0.98
         ),
         xaxis=dict(
             showgrid=True,
-            gridcolor="rgba(255, 255, 255, 0.05)",
+            gridcolor=axis_colors["gridcolor"],
             zeroline=False,
             showline=True,
-            linecolor="rgba(255, 255, 255, 0.1)",
+            linecolor=axis_colors["linecolor"],
             tickformat="%H:%M"
         ),
         yaxis=dict(
             title=dict(
                 text="Temperature (°C)",
-                font=dict(color="#94A3B8", size=11)
+                font=dict(color=axis_colors["text_color"], size=11)
             ),
             showgrid=True,
-            gridcolor="rgba(255, 255, 255, 0.05)",
+            gridcolor=axis_colors["gridcolor"],
             zeroline=False,
             showline=True,
-            linecolor="rgba(255, 255, 255, 0.1)"
+            linecolor=axis_colors["linecolor"]
         )
     )
 
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
 
-def render_energy_and_delta_t_chart(df: pd.DataFrame):
+def render_energy_and_delta_t_chart(df: pd.DataFrame, theme_mode: str = None):
     """
     Renders synchronized twin-panel view:
     1. Thermal Delta-T (Return - Supply) with optimal performance bands
     2. Power Consumption Draw (kW)
     """
+    if theme_mode is None:
+        theme_mode = get_current_theme()
+    plot_layout = get_plot_layout(theme_mode)
+    axis_colors = get_axis_colors(theme_mode)
+    is_dark = (theme_mode == "dark")
+    annotation_color = "#E2E8F0" if is_dark else "#0F172A"
+    yaxis_color = axis_colors["text_color"]
+
     fig = make_subplots(
         rows=2, cols=1,
         shared_xaxes=True,
@@ -187,34 +180,35 @@ def render_energy_and_delta_t_chart(df: pd.DataFrame):
     )
 
     fig.update_layout(
-        **DARK_PLOT_LAYOUT,
+        **plot_layout,
         height=380,
+        margin=dict(l=40, r=20, t=35, b=40),
         showlegend=False,
     )
 
     # Style subplot title colors
     for annotation in fig["layout"]["annotations"]:
-        annotation["font"] = dict(size=12, color="#E2E8F0")
+        annotation["font"] = dict(size=12, color=annotation_color)
 
     fig.update_xaxes(
         showgrid=True,
-        gridcolor="rgba(255, 255, 255, 0.05)",
-        linecolor="rgba(255, 255, 255, 0.1)",
+        gridcolor=axis_colors["gridcolor"],
+        linecolor=axis_colors["linecolor"],
         tickformat="%H:%M",
         row=2, col=1
     )
     fig.update_yaxes(
         title_text="ΔT (°C)",
-        title_font=dict(size=10, color="#94A3B8"),
+        title_font=dict(size=10, color=yaxis_color),
         showgrid=True,
-        gridcolor="rgba(255, 255, 255, 0.05)",
+        gridcolor=axis_colors["gridcolor"],
         row=1, col=1
     )
     fig.update_yaxes(
         title_text="Power (kW)",
-        title_font=dict(size=10, color="#94A3B8"),
+        title_font=dict(size=10, color=yaxis_color),
         showgrid=True,
-        gridcolor="rgba(255, 255, 255, 0.05)",
+        gridcolor=axis_colors["gridcolor"],
         row=2, col=1
     )
 

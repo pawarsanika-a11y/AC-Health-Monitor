@@ -35,17 +35,16 @@ def render_top_kpi_row(state: ACSystemState):
             <div class="health-hero">
                 <div>
                     <div class="health-score-large" style="color: {health_color};">
-                        {state.health_score}<span style="font-size: 1.15rem; color: #64748B; font-weight: 500;">/100</span>
+                        {state.health_score}<span style="font-size: 1.15rem; color: var(--text-muted); font-weight: 500;">/100</span>
                     </div>
                     <div class="health-score-desc">Estimated Condition Index</div>
                 </div>
                 <div style="text-align: right;">
-                    <div style="font-size: 0.72rem; color: #94A3B8; text-transform: uppercase; font-weight: 600;">Status Range</div>
-                    <div style="font-size: 0.85rem; color: #F1F5F9; font-weight: 600;">{condition_label}</div>
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600;">Status Range</div>
+                    <div style="font-size: 0.85rem; color: var(--text-primary); font-weight: 600;">{condition_label}</div>
                     <div style="font-size: 0.72rem; color: #10B981; font-weight: 600; margin-top: 0.2rem;">● Stable cycle</div>
                 </div>
             </div>
-            <!-- Progress Bar -->
             <div style="background: rgba(255, 255, 255, 0.08); border-radius: 9999px; height: 6px; width: 100%; overflow: hidden; margin-top: 0.65rem;">
                 <div style="background: {health_color}; width: {state.health_score}%; height: 100%; border-radius: 9999px; transition: width 0.4s ease;"></div>
             </div>
@@ -62,7 +61,7 @@ def render_top_kpi_row(state: ACSystemState):
                 </span>
             </div>
             <div style="margin-top: 0.25rem;">
-                <div style="font-size: 1.12rem; font-weight: 700; color: #F8FAFC; margin-bottom: 0.35rem; line-height: 1.3;">
+                <div style="font-size: 1.12rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem; line-height: 1.3;">
                     {state.operating_status}
                 </div>
                 <div class="telemetry-row">
@@ -121,17 +120,17 @@ def render_top_kpi_row(state: ACSystemState):
                 <span class="badge badge-neutral">Estimated</span>
             </div>
             <div style="margin-top: 0.25rem;">
-                <div style="font-size: 1.7rem; font-weight: 700; color: #F8FAFC; line-height: 1.1;">
-                    {state.power_kw:.2f} <span style="font-size: 0.95rem; font-weight: 500; color: #94A3B8;">kW</span>
+                <div style="font-size: 1.7rem; font-weight: 700; color: var(--text-primary); line-height: 1.1;">
+                    {state.power_kw:.2f} <span style="font-size: 0.95rem; font-weight: 500; color: var(--text-secondary);">kW</span>
                 </div>
-                <div style="font-size: 0.72rem; color: #64748B; margin-top: 0.2rem; margin-bottom: 0.5rem;">Current Inverter Draw</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; margin-bottom: 0.5rem;">Current Inverter Draw</div>
                 <div class="telemetry-row">
                     <span class="telemetry-label">Today's Usage</span>
                     <span class="telemetry-val">{state.daily_energy_kwh:.2f} kWh</span>
                 </div>
                 <div class="telemetry-row">
                     <span class="telemetry-label">Efficiency (COP)</span>
-                    <span class="telemetry-val" style="color: #34D399;">{state.estimated_cop:.2f}</span>
+                    <span class="telemetry-val" style="color: #10B981;">{state.estimated_cop:.2f}</span>
                 </div>
             </div>
         </div>
@@ -149,45 +148,42 @@ def render_hardware_status_banner(state: ACSystemState):
     col_a, col_b = st.columns([2.2, 1.0])
 
     with col_a:
-        st.markdown(f"""
-        <div class="iot-card" style="margin-bottom: 1.25rem; padding: 1.1rem 1.4rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                <div style="display: flex; align-items: center; gap: 0.65rem;">
-                    <div style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 1.05rem;">
-                        ⚡
-                    </div>
-                    <div>
-                        <div style="font-size: 0.92rem; font-weight: 700; color: #F8FAFC;">ESP32 Hardware Telemetry Subsystem</div>
-                        <div style="font-size: 0.74rem; color: #94A3B8;">Direct Microcontroller Interface • NIST Pre-processing Ready</div>
-                    </div>
-                </div>
-                <span class="badge {esp_status_badge}">
-                    <span class="badge-dot {dot_pulse}"></span>{esp_status_label}
-                </span>
+        st.markdown(f"""<div class="iot-card" style="margin-bottom: 1.25rem; padding: 1.1rem 1.4rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <div style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 1.05rem;">
+                ⚡
             </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.85rem; background: rgba(10, 15, 25, 0.6); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05);">
-                <div>
-                    <div style="font-size: 0.68rem; color: #64748B; text-transform: uppercase; font-weight: 600;">Device Model</div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: #E2E8F0; font-family: 'JetBrains Mono', monospace;">{state.esp32_device_id}</div>
-                </div>
-                <div>
-                    <div style="font-size: 0.68rem; color: #64748B; text-transform: uppercase; font-weight: 600;">Temperature Sensor</div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: #E2E8F0; font-family: 'JetBrains Mono', monospace;">{state.esp32_sensor_type}</div>
-                </div>
-                <div>
-                    <div style="font-size: 0.68rem; color: #64748B; text-transform: uppercase; font-weight: 600;">Communication Port</div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: #60A5FA; font-family: 'JetBrains Mono', monospace;">{state.esp32_port}</div>
-                </div>
-                <div>
-                    <div style="font-size: 0.68rem; color: #64748B; text-transform: uppercase; font-weight: 600;">Last Packet Ping</div>
-                    <div style="font-size: 0.82rem; font-weight: 600; color: {'#10B981' if state.esp32_connected else '#EF4444'}; font-family: 'JetBrains Mono', monospace;">
-                        {state.esp32_last_seen_sec}s ago (0% loss)
-                    </div>
-                </div>
+            <div>
+                <div style="font-size: 0.92rem; font-weight: 700; color: var(--text-primary);">ESP32 Hardware Telemetry Subsystem</div>
+                <div style="font-size: 0.74rem; color: var(--text-secondary);">Direct Microcontroller Interface • NIST Pre-processing Ready</div>
             </div>
         </div>
-        """, unsafe_allow_html=True)
+        <span class="badge {esp_status_badge}">
+            <span class="badge-dot {dot_pulse}"></span>{esp_status_label}
+        </span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.85rem; background: var(--input-bg); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--border-subtle);">
+        <div>
+            <div style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Device Model</div>
+            <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-primary); font-family: 'JetBrains Mono', monospace;">{state.esp32_device_id}</div>
+        </div>
+        <div>
+            <div style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Temperature Sensor</div>
+            <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-primary); font-family: 'JetBrains Mono', monospace;">{state.esp32_sensor_type}</div>
+        </div>
+        <div>
+            <div style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Communication Port</div>
+            <div style="font-size: 0.82rem; font-weight: 600; color: #60A5FA; font-family: 'JetBrains Mono', monospace;">{state.esp32_port}</div>
+        </div>
+        <div>
+            <div style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Last Packet Ping</div>
+            <div style="font-size: 0.82rem; font-weight: 600; color: {'#10B981' if state.esp32_connected else '#EF4444'}; font-family: 'JetBrains Mono', monospace;">
+                {state.esp32_last_seen_sec}s ago (0% loss)
+            </div>
+        </div>
+    </div>
+</div>""", unsafe_allow_html=True)
 
     with col_b:
         # Live Probe Direct Reading
@@ -205,10 +201,10 @@ def render_hardware_status_banner(state: ACSystemState):
                     <div style="font-size: 1.95rem; font-weight: 800; color: #38BDF8; font-family: 'JetBrains Mono', monospace;">
                         {probe_reading}
                     </div>
-                    <div style="font-size: 0.72rem; color: #94A3B8;">Vent Supply Temperature</div>
+                    <div style="font-size: 0.72rem; color: var(--text-secondary);">Vent Supply Temperature</div>
                 </div>
                 <div style="text-align: right;">
-                    <div style="font-size: 0.72rem; color: #64748B; font-weight: 600;">THERMAL SPLIT (ΔT)</div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">THERMAL SPLIT (ΔT)</div>
                     <div style="font-size: 1.25rem; font-weight: 700; color: {delta_color}; font-family: 'JetBrains Mono', monospace;">
                         {state.delta_t:.1f}°C
                     </div>
@@ -216,4 +212,3 @@ def render_hardware_status_banner(state: ACSystemState):
             </div>
         </div>
         """, unsafe_allow_html=True)
-

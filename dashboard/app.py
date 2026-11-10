@@ -1,13 +1,17 @@
 """
-app.py - AI-AC-Health-Monitor Primary Dashboard
+app.py - AI-AC-Health-Monitor Primary Application
 
-Main Streamlit application interface providing real-time AC health monitoring,
-IoT sensor telemetry, temperature dynamic charts, and ML-ready diagnostic cards.
+Main Streamlit application interface providing:
+1. Public Homepage: System purpose, architecture, features, and login/get started
+2. Protected Dashboard Console: Real-time AC health monitoring, IoT sensor telemetry,
+   temperature dynamic charts, and ML-ready diagnostic cards.
 """
 
 import sys
 from pathlib import Path
 from datetime import datetime
+
+import pandas as pd
 import streamlit as st
 
 # Ensure project root is in sys.path
@@ -33,6 +37,7 @@ from dashboard.components.metrics_cards import (
 )
 from dashboard.components.fault_analysis_view import render_fault_analysis_view
 from dashboard.components.climate_impact_view import render_climate_impact_view
+from dashboard.components.homepage import render_homepage
 from dashboard.utils.ml_inference import models_available, run_inference
 from dashboard.components.sidebar import render_sidebar
 from dashboard.utils.sample_data import (
@@ -40,14 +45,32 @@ from dashboard.utils.sample_data import (
     generate_temperature_timeseries,
     get_current_system_state,
 )
-from dashboard.utils.theme import apply_custom_theme
+from dashboard.utils.theme import apply_custom_theme, get_current_theme, set_theme
 
 
 def main():
-    # Inject dark navy/charcoal IoT theme CSS
-    apply_custom_theme()
+    # Retrieve current theme ('dark' or 'light')
+    current_theme = get_current_theme()
+    apply_custom_theme(current_theme)
 
-    # Render navigation and sidebar controls
+    # Initialize navigation and session state
+    if "logged_in" not in st.session_state:
+        # Check query params for deep-linking (e.g. ?page=dashboard)
+        qp_page = st.query_params.get("page", None)
+        if qp_page == "dashboard":
+            st.session_state["logged_in"] = True
+            st.session_state["current_page"] = "dashboard"
+        else:
+            st.session_state["logged_in"] = False
+            st.session_state["current_page"] = "home"
+
+    # ROUTE 1: PUBLIC HOMEPAGE (First page users see when visiting)
+    if not st.session_state.get("logged_in", False) and st.session_state.get("current_page", "home") == "home":
+        render_homepage()
+        return
+
+    # ROUTE 2: PROTECTED OPERATIONAL CONSOLE (Dashboard & Diagnostic Views)
+    # Render navigation and sidebar controls (including the unchanged AC Units dropdown)
     selected_nav, scenario, esp32_online, unit_id = render_sidebar()
 
     # Acquire current state data (needed for all views)
@@ -72,17 +95,17 @@ def main():
 
     # --- PRIMARY DASHBOARD VIEW ---
     # Header Section
-    col_header_left, col_header_right = st.columns([2.5, 1.0])
+    col_header_left, col_header_right = st.columns([2.5, 1.2])
 
     with col_header_left:
         st.markdown(f"""
         <div style="margin-bottom: 0.25rem;">
-            <h1 style="font-size: 1.85rem; font-weight: 800; color: #F8FAFC; margin-bottom: 0.2rem; letter-spacing: -0.02em;">
+            <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.2rem; letter-spacing: -0.02em;">
                 AC Health & Telemetry Dashboard
             </h1>
             <div class="header-subtitle">
-                Monitoring Target: <strong style="color: #60A5FA;">{unit_id}</strong> &nbsp;•&nbsp; 
-                Mode: <span style="color: #CBD5E1;">{scenario}</span>
+                Monitoring Target: <strong style="color: var(--accent-blue);">{unit_id}</strong> &nbsp;•&nbsp; 
+                Mode: <span style="color: var(--text-secondary);">{scenario}</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -90,9 +113,9 @@ def main():
     with col_header_right:
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         st.markdown(f"""
-        <div style="text-align: right; padding-top: 0.5rem;">
-            <div style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">System Time</div>
-            <div style="font-size: 0.88rem; color: #E2E8F0; font-family: 'JetBrains Mono', monospace; font-weight: 600;">{now_str}</div>
+        <div style="text-align: right; padding-top: 0.4rem;">
+            <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">System Time</div>
+            <div style="font-size: 0.88rem; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-weight: 600;">{now_str}</div>
             <div style="font-size: 0.72rem; color: #10B981; margin-top: 0.2rem;">● Auto-sync: 1 Hz active</div>
         </div>
         """, unsafe_allow_html=True)
@@ -107,10 +130,10 @@ def main():
     st.markdown("""
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; margin-bottom: 0.75rem;">
         <div>
-            <h3 style="font-size: 1.15rem; font-weight: 700; color: #F8FAFC; margin: 0;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin: 0;">
                 Temperature Dynamics & Thermal Gradients
             </h3>
-            <p style="font-size: 0.78rem; color: #94A3B8; margin: 0;">
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">
                 Evaporator Supply vs Indoor Ambient vs Outdoor Diurnal Profile
             </p>
         </div>
@@ -118,7 +141,7 @@ def main():
     """, unsafe_allow_html=True)
 
     # Time range selector & chart controls
-    col_chart_filter, col_filler = st.columns([1.5, 3.5])
+    col_chart_filter, _ = st.columns([1.5, 3.5])
     with col_chart_filter:
         time_range = st.radio(
             "Time Range Filter",
@@ -145,69 +168,47 @@ def main():
         points=points_count
     )
 
-    # Render temperature and secondary energy/delta-t charts side-by-side or stacked
+    # Render temperature and secondary energy/delta-t charts side-by-side
     chart_col1, chart_col2 = st.columns([1.55, 1.0])
 
     with chart_col1:
         st.markdown('<div class="iot-card" style="padding: 1rem 1rem 0.5rem 1rem;">', unsafe_allow_html=True)
-        render_temperature_chart(df_timeseries, time_range)
+        render_temperature_chart(df_timeseries, time_range, theme_mode=current_theme)
         st.markdown('</div>', unsafe_allow_html=True)
 
     with chart_col2:
         st.markdown('<div class="iot-card" style="padding: 1rem 1rem 0.5rem 1rem;">', unsafe_allow_html=True)
-        render_energy_and_delta_t_chart(df_timeseries)
+        render_energy_and_delta_t_chart(df_timeseries, theme_mode=current_theme)
         st.markdown('</div>', unsafe_allow_html=True)
 
     # 4. Recent Telemetry Events / Anomaly Log Section
     st.markdown("""
     <div style="margin-top: 1rem; margin-bottom: 0.65rem;">
-        <h3 style="font-size: 1.05rem; font-weight: 700; color: #F8FAFC; margin: 0;">
+        <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin: 0;">
             Live Telemetry & Anomaly Event Log
         </h3>
     </div>
     """, unsafe_allow_html=True)
 
     events = generate_recent_telemetry_events(scenario_name=scenario)
+    if events:
+        event_df = pd.DataFrame(events, columns=["time", "level", "source", "message"])
+        event_df = event_df.rename(columns={"message": "event"})
+        event_df = event_df[["time", "level", "source", "event"]]
 
-    event_rows_html = ""
-    for ev in events:
-        badge_cls = {
-            "INFO": "badge-neutral",
-            "WARN": "badge-warning",
-            "ALERT": "badge-warning",
-            "CRITICAL": "badge-danger"
-        }.get(ev["level"], "badge-neutral")
-
-        event_rows_html += f"""
-        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04); font-size: 0.8rem;">
-            <td style="padding: 0.65rem 0.75rem; color: #64748B; font-family: 'JetBrains Mono', monospace;">{ev['time']}</td>
-            <td style="padding: 0.65rem 0.75rem;">
-                <span class="badge {badge_cls}" style="font-size: 0.65rem; padding: 0.15rem 0.5rem;">
-                    {ev['level']}
-                </span>
-            </td>
-            <td style="padding: 0.65rem 0.75rem; color: #94A3B8; font-weight: 600;">{ev['source']}</td>
-            <td style="padding: 0.65rem 0.75rem; color: #F1F5F9;">{ev['message']}</td>
-        </tr>
-        """
-
-    st.markdown(f"""
-    <div class="iot-card" style="padding: 0.5rem 0.75rem;">
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
-            <thead>
-                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.72rem; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em;">
-                    <th style="padding: 0.6rem 0.75rem; width: 110px;">Time</th>
-                    <th style="padding: 0.6rem 0.75rem; width: 100px;">Severity</th>
-                    <th style="padding: 0.6rem 0.75rem; width: 120px;">Source</th>
-                    <th style="padding: 0.6rem 0.75rem;">Event Detail</th>
-                </tr>
-            </thead>
-            <tbody>
-                {event_rows_html}
-            </tbody>
-        </table>
-    </div>
-    """, unsafe_allow_html=True)
+        st.dataframe(
+            event_df,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "time": st.column_config.TextColumn("Time", width="small"),
+                "level": st.column_config.TextColumn("Level", width="small"),
+                "source": st.column_config.TextColumn("Source", width="medium"),
+                "event": st.column_config.TextColumn("Event"),
+            },
+        )
+    else:
+        st.info("No telemetry events available for the current scenario.")
 
 
 if __name__ == "__main__":

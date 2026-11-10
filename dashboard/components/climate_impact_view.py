@@ -14,6 +14,7 @@ import streamlit as st
 
 from dashboard.utils.ml_inference import MLInferenceResult, models_available
 from dashboard.utils.sample_data import ACSystemState
+from dashboard.utils.theme import get_current_theme, get_plot_layout, get_axis_colors
 
 
 def render_climate_impact_view(state: ACSystemState, ml_result: Optional[MLInferenceResult] = None):
@@ -28,7 +29,7 @@ def render_climate_impact_view(state: ACSystemState, ml_result: Optional[MLInfer
     # Page header
     st.markdown("""
     <div style="margin-bottom: 1.5rem;">
-        <h2 style="font-size: 1.6rem; font-weight: 800; color: #F8FAFC; margin-bottom: 0.25rem;">
+        <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.25rem;">
             Energy &amp; Climate Impact
         </h2>
         <div class="header-subtitle">
@@ -190,6 +191,10 @@ def _render_regional_comparison_chart(energy_kwh: float):
     from src.climate_impact import compare_emission_factors
     comparison = compare_emission_factors(energy_kwh)
 
+    theme_mode = get_current_theme()
+    plot_layout = get_plot_layout(theme_mode)
+    axis_colors = get_axis_colors(theme_mode)
+
     fig = go.Figure(go.Bar(
         x=list(comparison.values()),
         y=list(comparison.keys()),
@@ -197,19 +202,17 @@ def _render_regional_comparison_chart(energy_kwh: float):
         marker_color=["#3B82F6", "#10B981", "#34D399", "#60A5FA", "#6EE7B7"],
         text=[f"{v:.4f} kg" for v in comparison.values()],
         textposition="outside",
-        textfont=dict(color="#94A3B8", size=10),
+        textfont=dict(color=axis_colors["text_color"], size=10),
     ))
     fig.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(15,23,42,0.5)",
-        font=dict(family="Plus Jakarta Sans, sans-serif", color="#94A3B8", size=11),
+        **plot_layout,
         margin=dict(l=10, r=80, t=40, b=10),
         height=220,
         title=dict(
             text=f"<b>Carbon Footprint by Grid Region</b> ({energy_kwh:.2f} kWh)",
-            font=dict(size=13, color="#F8FAFC"), x=0.01,
+            font=dict(size=13, color=axis_colors["title_color"]), x=0.01,
         ),
-        xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)", title="kg CO₂e"),
+        xaxis=dict(showgrid=True, gridcolor=axis_colors["gridcolor"], title="kg CO₂e"),
         yaxis=dict(showgrid=False, autorange="reversed"),
     )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
@@ -217,6 +220,10 @@ def _render_regional_comparison_chart(energy_kwh: float):
 
 def _render_efficiency_chart(state: ACSystemState, result):
     """Bar chart comparing actual vs nominal COP."""
+    theme_mode = get_current_theme()
+    plot_layout = get_plot_layout(theme_mode)
+    axis_colors = get_axis_colors(theme_mode)
+
     fig = go.Figure()
     fig.add_trace(go.Bar(
         name="Nominal COP (Healthy)",
@@ -233,16 +240,12 @@ def _render_efficiency_chart(state: ACSystemState, result):
         width=0.3,
     ))
     fig.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(15,23,42,0.5)",
-        font=dict(family="Plus Jakarta Sans, sans-serif", color="#94A3B8", size=11),
+        **plot_layout,
         margin=dict(l=40, r=20, t=40, b=30),
         height=240,
         barmode="group",
-        title=dict(text="<b>COP Efficiency Comparison</b>", font=dict(size=13, color="#F8FAFC"), x=0.01),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1,
-                    font=dict(size=11, color="#CBD5E1"), bgcolor="rgba(15,23,42,0.7)"),
-        yaxis=dict(title="COP", showgrid=True, gridcolor="rgba(255,255,255,0.05)", range=[0, 5]),
+        title=dict(text="<b>COP Efficiency Comparison</b>", font=dict(size=13, color=axis_colors["title_color"]), x=0.01),
+        yaxis=dict(title="COP", showgrid=True, gridcolor=axis_colors["gridcolor"], range=[0, 5]),
     )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 

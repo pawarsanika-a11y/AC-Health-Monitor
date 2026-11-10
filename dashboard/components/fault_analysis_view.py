@@ -18,6 +18,7 @@ from dashboard.utils.ml_inference import (
     models_available,
 )
 from dashboard.utils.sample_data import ACSystemState
+from dashboard.utils.theme import get_current_theme, get_plot_layout, get_axis_colors
 
 
 def render_fault_analysis_view(state: ACSystemState, ml_result: Optional[MLInferenceResult] = None):
@@ -32,7 +33,7 @@ def render_fault_analysis_view(state: ACSystemState, ml_result: Optional[MLInfer
     # Page header
     st.markdown("""
     <div style="margin-bottom: 1.5rem;">
-        <h2 style="font-size: 1.6rem; font-weight: 800; color: #F8FAFC; margin-bottom: 0.25rem;">
+        <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.25rem;">
             Fault Analysis &amp; Diagnosis
         </h2>
         <div class="header-subtitle">
@@ -257,6 +258,10 @@ def _render_fault_probability_chart(ml_result: Optional[MLInferenceResult]):
             else:
                 bar_colors.append("#1E293B")
 
+    theme_mode = get_current_theme()
+    plot_layout = get_plot_layout(theme_mode)
+    axis_colors = get_axis_colors(theme_mode)
+
     fig = go.Figure(go.Bar(
         x=values,
         y=labels,
@@ -264,16 +269,14 @@ def _render_fault_probability_chart(ml_result: Optional[MLInferenceResult]):
         marker_color=bar_colors,
         text=[f"{v*100:.1f}%" for v in values],
         textposition="outside",
-        textfont=dict(color="#94A3B8", size=11),
+        textfont=dict(color=axis_colors["text_color"], size=11),
     ))
     fig.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(15,23,42,0.5)",
-        font=dict(family="Plus Jakarta Sans, sans-serif", color="#94A3B8", size=11),
+        **plot_layout,
         margin=dict(l=10, r=60, t=40, b=10),
         height=240,
-        title=dict(text=f"<b>{title}</b>", font=dict(size=13, color="#F8FAFC"), x=0.01),
-        xaxis=dict(range=[0, 1.1], showgrid=True, gridcolor="rgba(255,255,255,0.05)", tickformat=".0%"),
+        title=dict(text=f"<b>{title}</b>", font=dict(size=13, color=axis_colors["title_color"]), x=0.01),
+        xaxis=dict(range=[0, 1.1], showgrid=True, gridcolor=axis_colors["gridcolor"], tickformat=".0%"),
         yaxis=dict(showgrid=False, autorange="reversed"),
     )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
